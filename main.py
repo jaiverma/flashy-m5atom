@@ -13,6 +13,13 @@ LED_PIN = machine.Pin(27)
 LED_NP = neopixel.NeoPixel(LED_PIN, 1)
 BTN_PIN = machine.Pin(39, machine.Pin.IN)
 
+def setup_ap(ssid, password):
+    ap_if = network.WLAN(network.AP_IF)
+    ap_if.active(True)
+    ap_if.config(essid=ssid, authmode=network.AUTH_WPA_WPA2_PSK,
+        password=password)
+    print('[*] Wifi AP: {}'.format(ap_if.ifconfig()))
+
 def connect_wifi(ssid, password):
     sta_if = network.WLAN(network.STA_IF)
     if not sta_if.isconnected():
@@ -91,15 +98,33 @@ async def async_main():
                 LED_NP.write()
         print('[+] restarting...')
 
+def flash(n, t, r, g, b):
+    for _ in range(n):
+        LED_NP[0] = (r, g, b)
+        LED_NP.write()
+        time.sleep_ms(t)
+        LED_NP[0] = (0, 0, 0)
+        LED_NP.write()
+        time.sleep_ms(t)
+
 def main():
+    # clear LED
     LED_NP[0] = (0, 0, 0)
     LED_NP.write()
+
+    # yellow until setup is complete
+    flash(5, 100, 0xff, 0xbf, 0x00)
 
     data = None
     with open('/wifi.cfg') as f:
         data = json.load(f)
 
-    connect_wifi(data['ssid'], data['password'])
+    # connect_wifi(data['ssid'], data['password'])
+    setup_ap(data['ssid'], data['password'])
+
+    # green when AP is setup
+    flash(1, 2000, 0x00, 0xff, 0x00)
+
     asyncio.run(async_main())
 
 main()
