@@ -25,3 +25,7 @@ $ ampy --port /dev/ttyUSB0 put main.py
 
 Schematics for the M5 Atom Lite are here, [https://docs.m5stack.com/en/core/atom_lite](https://docs.m5stack.com/en/core/atom_lite)
 
+This program starts a TCP server on port `10002` on the ESP32. The LED starts
+flashing when you send `HELLO` to it, and stops when you press the button.
+
+![flash](res/flash.gif)
