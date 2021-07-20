@@ -32,12 +32,11 @@ def connect_wifi(ssid, password):
     print('[*] Connected: {}'.format(sta_if.ifconfig()))
 
 async def flash():
-    random.seed(time.time())
     def get_rgb():
         # not too bright
-        r = random.randint(0, 30)
-        g = random.randint(0, 30)
-        b = random.randint(0, 30)
+        r = random.randint(0, 0xff)
+        g = random.randint(0, 0xff)
+        b = random.randint(0, 0xff)
         return (r, g, b)
 
     # flash LEDs in 5 rapid flash cycles
@@ -98,7 +97,7 @@ async def async_main():
                 LED_NP.write()
         print('[+] restarting...')
 
-def flash(n, t, r, g, b):
+def flash_notif(n, t, r, g, b):
     for _ in range(n):
         LED_NP[0] = (r, g, b)
         LED_NP.write()
@@ -108,12 +107,14 @@ def flash(n, t, r, g, b):
         time.sleep_ms(t)
 
 def main():
+    random.seed(time.time())
+
     # clear LED
     LED_NP[0] = (0, 0, 0)
     LED_NP.write()
 
     # yellow until setup is complete
-    flash(5, 100, 0xff, 0xbf, 0x00)
+    flash_notif(5, 100, 0xff, 0xbf, 0x00)
 
     data = None
     with open('/wifi.cfg') as f:
@@ -123,7 +124,7 @@ def main():
     setup_ap(data['ssid'], data['password'])
 
     # green when AP is setup
-    flash(1, 2000, 0x00, 0xff, 0x00)
+    flash_notif(1, 2000, 0x00, 0xff, 0x00)
 
     asyncio.run(async_main())
 
